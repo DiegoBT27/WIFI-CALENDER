@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 220 50% 95%; /* #E6EBF5 */
+    --foreground: 220 25% 25%; /* #30394D */
+    --card: 220 50% 98%;
+    --card-foreground: 220 25% 25%;
+    --popover: 220 50% 98%;
+    --popover-foreground: 220 25% 25%;
+    --primary: 219 79% 66%; /* #6495ED */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 40% 88%;
+    --secondary-foreground: 219 79% 66%;
+    --muted: 220 40% 90%;
+    --muted-foreground: 220 20% 45%;
+    --accent: 249 88% 72%; /* #8B79F5 */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 30% 85%;
+    --input: 220 30% 90%;
+    --ring: 219 79% 66%;
+    --chart-1: 210 70% 55%; /* Blue for Router/Chart 1 */
+    --chart-2: 140 55% 50%; /* Green for EAP/Chart 2 */
+    --chart-3: 190 60% 60%; /* Teal/Blue for Total Customers/Chart 3 */
+    --chart-4: 160 50% 55%; /* Soft Green for Total Income/Chart 4 */
+    --chart-5: 27 87% 67%;   /* Original Chart 5 - Orange */
+    --radius: 0.75rem;
+    --sidebar-background: 220 50% 97%; /* Adjusted for consistency */
+    --sidebar-foreground: 220 25% 30%;
+    --sidebar-primary: 219 79% 66%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 40% 92%;
+    --sidebar-accent-foreground: 219 79% 66%;
+    --sidebar-border: 220 30% 88%;
+    --sidebar-ring: 219 79% 66%;
+  }
+  .dark {
+    --background: 220 20% 10%; /* #14181F */
+    --foreground: 220 30% 90%; /* #DCE1EB */
+    --card: 220 20% 12%;
+    --card-foreground: 220 30% 90%;
+    --popover: 220 20% 12%;
+    --popover-foreground: 220 30% 90%;
+    --primary: 219 79% 66%; /* #6495ED */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 15% 25%;
+    --secondary-foreground: 219 79% 66%;
+    --muted: 220 15% 20%;
+    --muted-foreground: 220 20% 60%;
+    --accent: 249 88% 72%; /* #8B79F5 */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 25%;
+    --input: 220 15% 30%;
+    --ring: 219 79% 66%;
+    --chart-1: 210 70% 65%; /* Dark theme Blue for Router/Chart 1 */
+    --chart-2: 140 55% 60%; /* Dark theme Green for EAP/Chart 2 */
+    --chart-3: 190 60% 70%; /* Dark theme Teal/Blue for Total Customers/Chart 3 */
+    --chart-4: 160 50% 65%; /* Dark theme Soft Green for Total Income/Chart 4 */
+    --chart-5: 340 75% 55%;  /* Original Dark Chart 5 - Pink/Red */
+    --sidebar-background: 220 20% 11%; /* Adjusted for consistency */
+    --sidebar-foreground: 220 30% 88%;
+    --sidebar-primary: 219 79% 66%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 22%;
+    --sidebar-accent-foreground: 219 79% 66%;
+    --sidebar-border: 220 15% 27%;
+    --sidebar-ring: 219 79% 66%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
