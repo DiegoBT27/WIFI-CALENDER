@@ -52,7 +52,7 @@ export function SavedInvoicesDialog({ isOpen, onClose, invoices, onViewInvoice }
                     <CardDescription>Cliente: {invoice.customerName}</CardDescription>
                   </CardHeader>
                   <CardContent className="text-sm flex-grow">
-                    <p>Servicio: {invoice.serviceType} ({invoice.clientTimeType})</p>
+                    <p>Servicio: {invoice.serviceType.toLowerCase()} ({invoice.clientTimeType})</p>
                     <p>Periodo: {invoice.servicePeriodStart} - {invoice.servicePeriodEnd}</p>
                     <p className="font-semibold">Monto: {formatCurrency(invoice.amount)}</p>
                   </CardContent>

@@ -133,7 +133,7 @@ export function ViewSavedInvoiceDialog({ invoice, isOpen, onClose, onDelete }: V
                 </thead>
                 <tbody>
                   <tr className="border-b border-muted">
-                    <td className="p-2">Servicio de Internet ({invoice.serviceType})</td>
+                    <td className="p-2">Servicio de Internet ({invoice.serviceType.toLowerCase()})</td>
                     <td className="p-2 text-center">{invoice.clientTimeType}</td>
                     <td className="p-2 text-center">
                       {invoice.servicePeriodStart} - {invoice.servicePeriodEnd}

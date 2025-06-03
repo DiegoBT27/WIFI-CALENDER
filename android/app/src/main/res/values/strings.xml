@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">WIFI-CALENDER</string>
+    <string name="title_activity_main">WIFI-CALENDER</string>
+    <string name="package_name">com.wifi.calender</string>
+    <string name="custom_url_scheme">com.wifi.calender</string>
+</resources>

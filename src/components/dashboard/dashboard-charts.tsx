@@ -1,14 +1,12 @@
 
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import {
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, LabelList } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList, Cell } from "recharts";
 import type { ServiceType } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 
@@ -19,10 +17,11 @@ interface DashboardChartsProps {
 }
 
 const chartConfig = {
-  customers: { label: "Clientes", color: "hsl(var(--chart-3))" },
-  ROUTER: { label: "Router", color: "hsl(var(--chart-1))" },
-  EAP: { label: "EAP", color: "hsl(var(--chart-2))" },
+  clientes: { label: "Clientes", color: "hsl(var(--chart-3))" },
+  router: { label: "router", color: "hsl(var(--chart-1))" },
+  eap: { label: "eap", color: "hsl(var(--chart-2))" },
 } satisfies ChartConfig;
+
 
 export function DashboardCharts({
   totalCustomersData,
@@ -30,87 +29,61 @@ export function DashboardCharts({
   totalMonthlyIncome,
 }: DashboardChartsProps) {
   
-  const hasTotalCustomerData = totalCustomersData.length > 0 && totalCustomersData[0].value > 0;
-  const hasServiceData = serviceTypeData.some(d => d.value > 0);
-
-  const renderCustomizedLabel = (props: any) => {
-    const { x, y, width, height, value } = props;
-    
-    if (width < 20 || value === 0) { 
-      return null;
-    }
-
-    return (
-      <g>
-        <text 
-          x={x + width - 7} 
-          y={y + height / 2} 
-          fill="hsl(var(--primary-foreground))" 
-          textAnchor="end" 
-          dominantBaseline="middle"
-          fontSize={10}
-          fontWeight="bold"
-        >
-          {value}
-        </text>
-      </g>
-    );
-  };
+  const totalCustomersCount = totalCustomersData.length > 0 ? totalCustomersData[0].value : 0;
+  const routerCount = serviceTypeData.find(d => d.name === 'router')?.value || 0;
+  const eapCount = serviceTypeData.find(d => d.name === 'eap')?.value || 0;
+  
+  const hasTotalCustomerData = totalCustomersCount > 0;
+  const hasServiceData = routerCount > 0 || eapCount > 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <Card>
         <CardHeader className="items-center text-center pt-4 pb-2">
           <CardTitle className="text-base font-semibold">Total de Clientes</CardTitle>
-          <CardDescription className="text-xs text-muted-foreground">
+          {totalCustomersCount > 0 && (
+            <div className="text-2xl font-bold text-primary pt-1">{totalCustomersCount}</div>
+          )}
+          <CardDescription className="text-xs text-muted-foreground pt-1">
             Ingreso Mensual Total Estimado: <span className="font-semibold text-primary">{formatCurrency(totalMonthlyIncome)}</span>
           </CardDescription>
-          {!hasTotalCustomerData && totalMonthlyIncome === 0 && <CardDescription className="text-xs text-muted-foreground pt-1">No hay clientes.</CardDescription>}
+          {!hasTotalCustomerData && <CardDescription className="text-xs text-muted-foreground pt-1">No hay clientes registrados.</CardDescription>}
         </CardHeader>
-        <CardContent className="h-[100px] flex items-center justify-center"> {/* Reduced height */}
+        <CardContent className="h-[120px] flex items-center justify-start px-3">
           {hasTotalCustomerData ? (
             <ChartContainer config={chartConfig} className="h-full w-full">
               <BarChart
                 data={totalCustomersData}
                 layout="vertical"
-                margin={{ top: 5, right: 35, left: 10, bottom: 0 }} // Increased right margin
-                barSize={20} // Reduced bar size
+                margin={{ top: 5, right: 20, left: 20, bottom: 0 }} 
+                barSize={20}
               >
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical />
                 <XAxis 
                   type="number" 
                   tickLine={false} 
                   axisLine={{ strokeOpacity: 0.5 }}
-                  tick={{ fontSize: 10 }} 
+                  tick={{ fontSize: 11 }}
                   allowDecimals={false}
-                  domain={[0, 'dataMax + 1']}
+                  domain={[0, (dataMax: number) => Math.max(Math.ceil(dataMax * 1.2), dataMax + 2, 5)]} 
                 />
                 <YAxis 
                   type="category" 
                   dataKey="name" 
                   tickLine={false} 
                   axisLine={false} 
-                  tick={{ fontSize: 10 }} 
-                  width={45}
-                />
-                <Tooltip
-                  cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
-                  content={<ChartTooltipContent 
-                    formatter={(value, name) => [`${value}`, chartConfig[name as keyof typeof chartConfig]?.label || name as string]}
-                    indicator="dot" 
-                  />}
+                  tick={{ fontSize: 11 }}
+                  width={70}
                 />
                 <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                    {totalCustomersData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
-                  <LabelList dataKey="value" content={renderCustomizedLabel} />
                 </Bar>
               </BarChart>
             </ChartContainer>
           ) : (
-             <div className="h-full flex items-center justify-center">
-               <p className="text-muted-foreground text-sm">0</p>
+             <div className="h-full w-full flex items-center justify-center">
             </div>
           )}
         </CardContent>
@@ -119,59 +92,63 @@ export function DashboardCharts({
       <Card>
         <CardHeader className="items-center text-center pt-4 pb-2">
           <CardTitle className="text-base font-semibold">Clientes por Servicio</CardTitle>
-           {!hasServiceData && <CardDescription className="text-xs text-muted-foreground">No hay datos de servicio.</CardDescription>}
+           {(!hasServiceData) && <CardDescription className="text-xs text-muted-foreground pt-1">No hay datos de servicio.</CardDescription>}
         </CardHeader>
-        <CardContent className="h-[100px] flex items-center justify-center"> {/* Reduced height */}
+        <CardContent className="h-[120px] flex items-center justify-start px-3">
           {hasServiceData ? (
             <ChartContainer config={chartConfig} className="h-full w-full">
               <BarChart
-                data={serviceTypeData}
+                data={serviceTypeData.filter(d => d.value > 0)} // Filter out zero-value services for chart
                 layout="vertical"
-                margin={{ top: 5, right: 35, left: 10, bottom: 0 }} // Increased right margin
-                barSize={20} // Reduced bar size
+                margin={{ top: 5, right: 20, left: 20, bottom: 0 }} 
+                barSize={20}
               >
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical />
                 <XAxis 
                   type="number" 
                   tickLine={false} 
                   axisLine={{ strokeOpacity: 0.5 }}
-                  tick={{ fontSize: 10 }} 
+                  tick={{ fontSize: 11 }}
                   allowDecimals={false}
-                  domain={[0, 'dataMax + 1']}
+                  domain={[0, (dataMax: number) => Math.max(Math.ceil(dataMax * 1.2), dataMax + 2, 5)]} 
                 />
                 <YAxis 
                   type="category" 
                   dataKey="name" 
                   tickLine={false} 
                   axisLine={false} 
-                  tick={{ fontSize: 10 }} 
-                  width={45}
-                />
-                <Tooltip
-                  cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
-                  content={<ChartTooltipContent 
-                    formatter={(value, name) => [`${value}`, chartConfig[name as keyof typeof chartConfig]?.label || name as string]}
-                    indicator="dot" 
-                  />}
+                  tick={{ fontSize: 11 }}
+                  width={70}
                 />
                 <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                  {serviceTypeData.map((entry, index) => (
+                  {serviceTypeData.filter(d => d.value > 0).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
-                  <LabelList dataKey="value" content={renderCustomizedLabel} />
                 </Bar>
               </BarChart>
             </ChartContainer>
           ) : (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-muted-foreground text-sm">N/A</p>
+            <div className="h-full w-full flex items-center justify-center">
             </div>
           )}
         </CardContent>
+        {(routerCount > 0 || eapCount > 0) && (
+          <CardFooter className="pt-2 pb-3 flex justify-start items-center text-sm gap-6">
+            {routerCount > 0 && (
+              <div className="text-center">
+                <div className="font-bold text-lg text-chart-1">{routerCount}</div>
+                <div className="text-xs text-muted-foreground">Routers</div>
+              </div>
+            )}
+            {eapCount > 0 && (
+              <div className="text-center">
+                <div className="font-bold text-lg text-chart-2">{eapCount}</div>
+                <div className="text-xs text-muted-foreground">EAPs</div>
+              </div>
+            )}
+          </CardFooter>
+        )}
       </Card>
     </div>
   );
 }
-
-
-    

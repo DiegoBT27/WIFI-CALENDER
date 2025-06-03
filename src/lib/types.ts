@@ -20,18 +20,20 @@ export interface Customer {
   serviceStartDate: Date;
   billingDate: Date; // Actual next billing date
   monthlyPrice: number;
-  currentPaymentStatus: 'Pagado' | 'Pendiente'; // Underlying status
+  currentPaymentStatus: 'Pagado' | 'Pendiente' | 'Vencido'; // Underlying status, now includes Vencido
   observations?: string;
   paymentHistory: PaymentRecord[];
-  planSpeed?: string; // New field for plan speed, e.g., "50 MB", "Fast"
+  planSpeed?: string;
+  profileName?: string | null; // Nuevo campo para el nombre del perfil
 }
 
 // Helper type for form data, allows string dates for input binding
 export type CustomerFormData = Omit<Customer, 'id' | 'paymentHistory' | 'serviceStartDate' | 'billingDate' | 'currentPaymentStatus'> & {
   serviceStartDate?: Date;
   billingDate?: Date;
-  currentPaymentStatus: 'Pagado' | 'Pendiente';
+  currentPaymentStatus: 'Pagado' | 'Pendiente' | 'Vencido';
   planSpeed?: string;
+  profileName?: string | null; // Nuevo campo para el nombre del perfil
 };
 
 export interface SavedInvoice {
@@ -46,4 +48,3 @@ export interface SavedInvoice {
   amount: number;
   originalBillingDate: string; // Store as ISO string to be serializable
 }
-

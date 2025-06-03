@@ -17,20 +17,17 @@ export const customerFormSchema = z.object({
   serviceStartDate: z.date({ required_error: "La fecha de inicio del servicio es requerida." }),
   billingDate: z.date({ required_error: "La fecha de corte/facturación es requerida." }),
   monthlyPrice: z.preprocess(
-    // Convertir string vacío a undefined para que required_error de Zod se active correctamente.
-    // Otros valores (incluyendo NaN de parseFloat('abc') o números) pasan como están.
     (val) => (val === '' ? undefined : val),
     z.coerce.number({
       required_error: "El precio es requerido.",
       invalid_type_error: "El precio debe ser un número válido.",
     })
-    // Se elimina .positive() según la solicitud del usuario
   ),
-  currentPaymentStatus: z.enum(['Pagado', 'Pendiente'], { required_error: "El estado del pago es requerido." }),
+  currentPaymentStatus: z.enum(['Pagado', 'Pendiente', 'Vencido'], { required_error: "El estado del pago es requerido." }),
   planSpeed: z.string().optional(),
   observations: z.string().optional(),
+  profileName: z.string().optional().nullable().transform(val => val?.trim() === '' ? null : val), // Nuevo campo, se normaliza a null si es string vacío
 });
 
 export type CustomerFormValues = z.infer<typeof customerFormSchema>;
 export type PaymentRecordFormValues = z.infer<typeof paymentRecordSchema>;
-

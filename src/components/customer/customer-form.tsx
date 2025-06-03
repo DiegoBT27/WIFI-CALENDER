@@ -8,7 +8,6 @@ import { customerFormSchema, type CustomerFormValues } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -34,14 +33,17 @@ import { cn, formatDate } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from 'react';
 
+const NO_PROFILE_VALUE = "Ninguno";
+
 interface CustomerFormProps {
   customer?: Customer; // For editing
+  definedProfiles: string[]; // Lista de perfiles definidos
   onSubmit: (data: CustomerFormValues) => void;
   onCancel: () => void;
   isSubmitting?: boolean;
 }
 
-export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: CustomerFormProps) {
+export function CustomerForm({ customer, definedProfiles, onSubmit, onCancel, isSubmitting }: CustomerFormProps) {
   const [isServiceStartDatePickerOpen, setIsServiceStartDatePickerOpen] = useState(false);
   const [isBillingDatePickerOpen, setIsBillingDatePickerOpen] = useState(false);
 
@@ -53,6 +55,7 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
           serviceStartDate: customer.serviceStartDate ? new Date(customer.serviceStartDate) : undefined,
           billingDate: customer.billingDate ? new Date(customer.billingDate) : undefined,
           planSpeed: customer.planSpeed || '',
+          profileName: customer.profileName || NO_PROFILE_VALUE, // Usar NO_PROFILE_VALUE si es null/undefined
         }
       : {
           fullName: '',
@@ -65,6 +68,7 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
           observations: '',
           serviceStartDate: new Date(),
           billingDate: new Date(),
+          profileName: NO_PROFILE_VALUE, // Default to "Ninguno"
         },
   });
 
@@ -83,12 +87,14 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
   };
 
   useEffect(() => {
+    const defaultProfileValue = customer?.profileName || NO_PROFILE_VALUE;
     if (customer) {
       form.reset({
         ...customer,
         serviceStartDate: customer.serviceStartDate ? new Date(customer.serviceStartDate) : new Date(),
         billingDate: customer.billingDate ? new Date(customer.billingDate) : new Date(),
         planSpeed: customer.planSpeed || '',
+        profileName: defaultProfileValue,
       });
     } else {
        form.reset({
@@ -102,9 +108,12 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
           observations: '',
           serviceStartDate: new Date(),
           billingDate: new Date(),
+          profileName: NO_PROFILE_VALUE,
        });
     }
   }, [customer, form]);
+
+  const availableProfilesForForm = [NO_PROFILE_VALUE, ...definedProfiles.sort()];
 
   return (
     <Form {...form}>
@@ -124,6 +133,33 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
         />
         <FormField
           control={form.control}
+          name="profileName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Perfil</FormLabel>
+              <Select 
+                onValueChange={field.onChange} 
+                defaultValue={field.value || NO_PROFILE_VALUE}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar perfil" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {availableProfilesForForm.map(profile => (
+                    <SelectItem key={profile} value={profile}>
+                      {profile}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="serviceType"
           render={({ field }) => (
             <FormItem>
@@ -135,8 +171,8 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="ROUTER">ROUTER</SelectItem>
-                  <SelectItem value="EAP">EAP</SelectItem>
+                  <SelectItem value="ROUTER">router</SelectItem>
+                  <SelectItem value="EAP">eap</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -152,8 +188,8 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
               <Select
                 onValueChange={(value) => {
                   field.onChange(value);
-                  if (!customer) {
-                    form.setValue('monthlyPrice', '' as any, { shouldValidate: false });
+                  if (!customer) { // Solo resetear precio si es un cliente nuevo
+                    form.setValue('monthlyPrice', '' as any, { shouldValidate: true, shouldDirty: true });
                   }
                 }}
                 defaultValue={field.value}
@@ -285,14 +321,14 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
                     type="number"
                     placeholder="0.00"
                     {...field}
-                    value={field.value === 0 && !customer ? '' : field.value} // Show empty if 0 for new customer
+                    value={field.value === 0 && !customer && !form.formState.dirtyFields.monthlyPrice ? '' : field.value} 
                     onChange={e => {
                         const value = e.target.value;
                         if (value === '') {
-                            field.onChange(''); // Allow empty string to clear
+                            field.onChange(''); 
                         } else {
                             const numValue = parseFloat(value);
-                            field.onChange(isNaN(numValue) ? value : numValue); // Pass original string if NaN for Zod to catch
+                            field.onChange(isNaN(numValue) ? '' : numValue); // Reset to empty if not a valid number
                         }
                     }}
                   />
@@ -316,6 +352,7 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
                   <SelectContent>
                     <SelectItem value="Pagado">Pagado</SelectItem>
                     <SelectItem value="Pendiente">Pendiente</SelectItem>
+                    <SelectItem value="Vencido">Vencido</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -334,9 +371,8 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
                   placeholder="Ej: 50 (se añadirá MB), Fast"
                   {...field}
                   onBlur={(e) => {
-                    field.onBlur?.(e); // Call original onBlur from react-hook-form
+                    field.onBlur?.(e); 
                     const currentValue = e.target.value.trim();
-                    // Check if the value is a number (integer or decimal)
                     if (currentValue && /^\d+(\.\d+)?$/.test(currentValue)) {
                       form.setValue('planSpeed', `${currentValue} MB`, {
                         shouldValidate: true,
@@ -375,4 +411,3 @@ export function CustomerForm({ customer, onSubmit, onCancel, isSubmitting }: Cus
     </Form>
   );
 }
-

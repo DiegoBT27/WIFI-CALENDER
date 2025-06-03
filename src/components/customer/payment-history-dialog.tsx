@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -221,18 +220,16 @@ export function PaymentHistoryDialog({ customer, isOpen, onClose, onUpdateCustom
         
         <DialogFooter className="pt-4 border-t">
           {!showPaymentForm && (
-            <Button onClick={() => {
-              form.reset({ date: new Date(), amount: 0, monthPaid: getMonthYear(new Date(customer.billingDate)) });
-              setShowPaymentForm(true);
-            }} className="mr-auto">
+            <Button 
+              onClick={() => {
+                form.reset({ date: new Date(), amount: 0, monthPaid: getMonthYear(new Date(customer.billingDate)) });
+                setShowPaymentForm(true);
+              }} 
+              className="w-full"
+            >
               <PlusCircle className="mr-2 h-4 w-4" /> Registrar Pago
             </Button>
           )}
-          <DialogClose asChild>
-            <Button type="button" variant="secondary" onClick={onClose}>
-              Cerrar
-            </Button>
-          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -2,7 +2,7 @@
 import type { Customer } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { User, Phone, CalendarDays, DollarSign, Edit, History, Info, Wifi, Clock, FileText, Gauge, Trash2 } from 'lucide-react';
+import { User, Phone, CalendarDays, DollarSign, Edit, History, Info, Wifi, Clock, FileText, Gauge, Trash2, CalendarClock, Briefcase } from 'lucide-react';
 import { CustomerStatusBadge } from './customer-status-badge';
 import { formatDate, formatCurrency, calculateDerivedStatus } from '@/lib/utils';
 
@@ -45,9 +45,15 @@ export function CustomerCard({ customer, onEdit, onViewPayments, onGenerateInvoi
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow space-y-2 text-sm pt-4">
+        {customer.profileName && (
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+            <span><span className="font-semibold">Perfil:</span> {customer.profileName}</span>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <Wifi className="h-4 w-4 text-muted-foreground" />
-          <span><span className="font-semibold">Servicio:</span> {customer.serviceType}</span>
+          <span><span className="font-semibold">Servicio:</span> {customer.serviceType.toLowerCase()}</span>
         </div>
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-muted-foreground" />
@@ -59,6 +65,10 @@ export function CustomerCard({ customer, onEdit, onViewPayments, onGenerateInvoi
             <span><span className="font-semibold">Plan:</span> {customer.planSpeed}</span>
           </div>
         )}
+        <div className="flex items-center gap-2">
+          <CalendarClock className="h-4 w-4 text-muted-foreground" />
+          <span><span className="font-semibold">Fecha de inicio:</span> {formatDate(customer.serviceStartDate)}</span>
+        </div>
         <div className="flex items-center gap-2">
           <CalendarDays className="h-4 w-4 text-muted-foreground" />
           <span><span className="font-semibold">Próximo corte:</span> {formatDate(customer.billingDate)}</span>
@@ -74,16 +84,16 @@ export function CustomerCard({ customer, onEdit, onViewPayments, onGenerateInvoi
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-center gap-1 border-t pt-4">
-        <Button variant="outline" size="sm" onClick={() => onGenerateInvoice(customer)} className="flex-grow sm:flex-grow-0 text-xs px-2">
+      <CardFooter className="flex flex-wrap justify-center gap-2 sm:gap-3 border-t pt-4">
+        <Button variant="outline" size="sm" onClick={() => onGenerateInvoice(customer)} className="flex-grow sm:flex-grow-0">
           <FileText className="mr-1 h-3.5 w-3.5" />
           Factura
         </Button>
-        <Button variant="outline" size="sm" onClick={() => onViewPayments(customer)} className="flex-grow sm:flex-grow-0 text-xs px-2">
+        <Button variant="outline" size="sm" onClick={() => onViewPayments(customer)} className="flex-grow sm:flex-grow-0">
           <History className="mr-1 h-3.5 w-3.5" />
           Pagos
         </Button>
-        <Button variant="default" size="sm" onClick={() => onEdit(customer)} className="flex-grow sm:flex-grow-0 text-xs px-2">
+        <Button variant="default" size="sm" onClick={() => onEdit(customer)} className="flex-grow sm:flex-grow-0">
           <Edit className="mr-1 h-3.5 w-3.5" />
           Editar
         </Button>

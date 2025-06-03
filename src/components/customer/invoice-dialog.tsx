@@ -25,6 +25,8 @@ interface InvoiceDialogProps {
   onSaveInvoice: (invoice: SavedInvoice) => void;
 }
 
+const COMPACT_DATE_FORMAT = 'dd/MM/yy';
+
 export function InvoiceDialog({ customer, isOpen, onClose, onSaveInvoice }: InvoiceDialogProps) {
   const [invoiceDate, setInvoiceDate] = useState('');
   const [invoiceId, setInvoiceId] = useState('');
@@ -106,8 +108,8 @@ export function InvoiceDialog({ customer, isOpen, onClose, onSaveInvoice }: Invo
       invoiceDate: invoiceDate, 
       serviceType: customer.serviceType,
       clientTimeType: customer.clientTimeType,
-      servicePeriodStart: formatDate(servicePeriodStart),
-      servicePeriodEnd: formatDate(servicePeriodEnd),
+      servicePeriodStart: formatDate(servicePeriodStart, COMPACT_DATE_FORMAT),
+      servicePeriodEnd: formatDate(servicePeriodEnd, COMPACT_DATE_FORMAT),
       amount: customer.monthlyPrice,
       originalBillingDate: servicePeriodStart.toISOString(), 
     };
@@ -165,10 +167,10 @@ export function InvoiceDialog({ customer, isOpen, onClose, onSaveInvoice }: Invo
                 </thead>
                 <tbody>
                   <tr className="border-b border-muted">
-                    <td className="p-2">Servicio de Internet ({customer.serviceType})</td>
+                    <td className="p-2">Servicio de Internet ({customer.serviceType.toLowerCase()})</td>
                     <td className="p-2 text-center">{customer.clientTimeType}</td>
                     <td className="p-2 text-center">
-                      {formatDate(servicePeriodStart)} - {formatDate(servicePeriodEnd)}
+                      {formatDate(servicePeriodStart, COMPACT_DATE_FORMAT)} - {formatDate(servicePeriodEnd, COMPACT_DATE_FORMAT)}
                     </td>
                     <td className="p-2 text-right">{formatCurrency(customer.monthlyPrice)}</td>
                   </tr>
